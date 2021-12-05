@@ -14,7 +14,7 @@
 -export([start/0]).
 
 % Read the file.
-readInput() ->
+read_input() ->
   {ok, Binary} = file:read_file("1.txt"),
   string:tokens(erlang:binary_to_list(Binary), "\n").
 
@@ -44,6 +44,6 @@ start() ->
                           {error, _} -> 0;
                           {Integer, _} -> Integer
                         end
-                    end, readInput()),
+                    end, read_input()),
   increaser(Input),
   sliding_window_increaser(Input).
