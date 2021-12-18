@@ -33,7 +33,7 @@ func TestBingoNumsCopy(t *testing.T) {
 	testBingoNumsCopy.nums[0] = 2
 
 	if testBingoNumsCopy.nums[0] == testBingoNums.nums[0] {
-		t.Errorf("Detected uncopied bingo nums, " +
+		t.Errorf("Detected uncopied bingo nums, "+
 			"testBingoNums: %v, testBingoNumsCopy: %v\n",
 			testBingoNums, testBingoNumsCopy)
 	}
@@ -81,7 +81,7 @@ func TestBingoCardCopy(t *testing.T) {
 	testBingoCardCopy.rows[0].nums[0] = 2
 
 	if testBingoCardCopy.rows[0].nums[0] == testBingoCard.rows[0].nums[0] {
-		t.Errorf("Detected uncopied bingo card, " +
+		t.Errorf("Detected uncopied bingo card, "+
 			"testBingoCard: %v, testBingoCardCopy: %v\n",
 			testBingoCard, testBingoCardCopy)
 	}
