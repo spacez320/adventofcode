@@ -26,15 +26,15 @@ increaser([Next|Tail], _, Increases) -> increaser(Tail, Next, Increases);
 increaser([], _, Increases) -> Increases.
 
 % Count the number of increasing numbers based on a sliding window of three.
-sliding_window_increaser([Next1, Next2, Next3 | Tail]) ->
-  sliding_window_increaser([Next2, Next3 | Tail], Next1 + Next2 + Next3, 0).
-sliding_window_increaser([Next1, Next2, Next3 | Tail], Prev, Increases)
+sliding_window_increaser([Next1, Next2, Next3|Tail]) ->
+  sliding_window_increaser([Next2, Next3|Tail], Next1 + Next2 + Next3, 0).
+sliding_window_increaser([Next1, Next2, Next3|Tail], Prev, Increases)
     when Next1 + Next2 + Next3 > Prev ->
   sliding_window_increaser(
-    [Next2, Next3 | Tail], Next1 + Next2 + Next3, Increases + 1);
+    [Next2, Next3|Tail], Next1 + Next2 + Next3, Increases + 1);
 sliding_window_increaser([Next1, Next2, Next3 | Tail], _, Increases) ->
   sliding_window_increaser(
-    [Next2, Next3 | Tail], Next1 + Next2 + Next3, Increases);
+    [Next2, Next3|Tail], Next1 + Next2 + Next3, Increases);
 sliding_window_increaser(_, _, Increases) -> Increases.
 
 % Execute and print the result.

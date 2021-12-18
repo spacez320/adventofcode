@@ -1,7 +1,6 @@
 %
-%
 % Advent of Code 2021, Day 2
-% 
+%
 % Reads a list of strings which represent directions on a two-dimensional
 % plane. Calculates total distance travelled.
 %
@@ -24,7 +23,8 @@ read_input() ->
                             element(
                               1, string:to_integer(lists:nth(3, Capture)))}
                 end
-            end,  string:tokens(erlang:binary_to_list(Binary), "\n")).
+            end,
+            string:tokens(erlang:binary_to_list(Binary), "\n")).
 
 cartesian_displacement(Movements) ->
   cartesian_displacement(Movements, 0, 0).
@@ -49,7 +49,7 @@ vector_displacement([NextMovement|Movements], X, Y, Aim) ->
 vector_displacement([], X, Y, _) -> X * Y.
 
 % Execute and print the result.
-start() -> 
+start() ->
   Input = read_input(),
   io:fwrite(
     "Cartesian displacement: ~p~n", [cartesian_displacement(Input)]),
