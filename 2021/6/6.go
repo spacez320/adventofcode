@@ -17,11 +17,12 @@ import (
 )
 
 const (
-	EPOCHS_TO_SIMULATE       = 256
-	NEW_POPULATION_VALUE     = 8
-	REFRESH_POPULATION_VALUE = 6
+	EPOCHS_TO_SIMULATE       = 256 // Number of epochs to simulate.
+	NEW_POPULATION_VALUE     = 8   // Value for new pops.
+	REFRESH_POPULATION_VALUE = 6   // Reset value for pops after breeding.
 )
 
+// Simulates one population cycle.
 func epoch(
 	populationCounter [NEW_POPULATION_VALUE + 1]int) (
 	newPopulationCounter [NEW_POPULATION_VALUE + 1]int) {
@@ -72,5 +73,6 @@ func main() {
 		populationSum += num
 	}
 
+	// Print the result.
 	fmt.Printf("%d\n", populationSum)
 }

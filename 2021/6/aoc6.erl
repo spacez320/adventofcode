@@ -12,7 +12,6 @@
 -module(aoc6).
 -export([start/0]).
 
-
 % Read the input file.
 read_input() ->
   {ok, Binary} = file:read_file("6.txt"),
@@ -24,7 +23,6 @@ read_input() ->
             end,
             string:tokens(erlang:binary_to_list(Binary), ",")).
 
-
 % Entrypoint.
 epoch(Population, Length) -> epoch(Population, 0, Length).
 
@@ -35,7 +33,6 @@ epoch(Population, Moments, Length) when Moments == Length -> Population;
 epoch(Population, Moments, Length) ->
   io:format("Beginning Epoch: ~p~n", [Moments]),
   epoch(moment(Population), Moments + 1, Length).
-
 
 % Entrypoint.
 moment(Population) -> moment(Population, []).

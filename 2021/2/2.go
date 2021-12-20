@@ -6,6 +6,7 @@ Reads a list of strings which represent directions on a two-dimensional plane.
 Calculates total distance travelled.
 
 Usage: go run 2.go
+
 */
 
 package main

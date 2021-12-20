@@ -1,12 +1,3 @@
-/*
-
-Advent of Code 2021, Day 4
-
-Structs and utiilties to play bingo.
-
-Usage: go run 4.go
-*/
-
 package main
 
 type BingoNums struct {

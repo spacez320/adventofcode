@@ -6,6 +6,7 @@ Reads a list of numbers and returns how many times a number is followed by
 a larger number, both sequentially and with a sliding window of three.
 
 Usage: go run 1.go
+
 */
 
 package main

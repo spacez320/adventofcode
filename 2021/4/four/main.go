@@ -1,3 +1,13 @@
+/*
+
+Advent of Code 2021, Day 4
+
+Structs and utiilties to play bingo.
+
+Usage: go build && ./four
+
+*/
+
 package main
 
 import (

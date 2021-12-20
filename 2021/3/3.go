@@ -6,6 +6,7 @@ Analyzes occurrences of bits in a series of binary strings, reduces based on
 bit occurrences, and does some binary math.
 
 Usage: go run 3.go
+
 */
 
 package main

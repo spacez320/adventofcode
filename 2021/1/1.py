@@ -1,8 +1,7 @@
 #
 # Advent of Code 2021, Day 1
 #
-# Reads a list of numbers and returns how many times a number is followed by a
-# larger number.
+# Reads a list of numbers and returns how many times a number is followed by a larger number.
 #
 # Usage: python 1.py
 

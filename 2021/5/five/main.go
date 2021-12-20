@@ -1,3 +1,13 @@
+/*
+
+Advent of Code 2021, Day 5
+
+Represents a cartesian grid and allows traversal across the grid.
+
+Usage: go build && ./five
+
+*/
+
 package main
 
 import (
