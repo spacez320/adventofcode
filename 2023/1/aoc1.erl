@@ -4,12 +4,6 @@
 % Reads a series of strings containing at least one number and produces a sum
 % of each string's first and last numbers combined together into a two digit
 % number.
-%
-% Usage:
-%
-%   erl
-%   erl> c(aoc1).
-%   aoc1:start().
 
 
 -module(aoc1).
