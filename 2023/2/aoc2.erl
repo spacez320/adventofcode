@@ -65,6 +65,7 @@ find_largest_color([Head|Tail], CurrentLargest) ->
 
 find_largest_color([], CurrentLargest) -> CurrentLargest.
 
+
 % Finds sums of game ids for valid games.
 sum_valid_games([Head|Tail], Sum) ->
   % Limits for color draws.
