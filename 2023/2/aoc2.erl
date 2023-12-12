@@ -8,7 +8,7 @@
 %     produces the sum of these products.
 
 -module(aoc2).
--export([start/0]).
+-export([main/1]).
 
 % Reads input from a file.
 read_input() ->
@@ -104,7 +104,7 @@ sum_largest_color_products([Head | Tail], Sum) ->
 sum_largest_color_products([], Sum) ->
     Sum.
 
-start() ->
+main(_) ->
     % Actual input.
     Input = read_input(),
 

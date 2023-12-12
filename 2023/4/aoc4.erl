@@ -5,7 +5,7 @@
 % of winning numbers.
 
 -module(aoc4).
--export([start/0]).
+-export([main/1]).
 
 % Reads input from a file.
 read_input() ->
@@ -90,6 +90,7 @@ sum_cards(CardCopySumMap) ->
 % This is the init function.
 make_card_copy_sum_list(CardCopyList) ->
     make_card_copy_sum_list(lists:reverse(lists:seq(1, length(CardCopyList))), CardCopyList, #{}).
+
 % This function iterates on cards to find a card sum and apply it to the map.
 make_card_copy_sum_list([Head | Tail], CardCopyList, CardCopySumMap) ->
     make_card_copy_sum_list(
@@ -149,7 +150,7 @@ sum_all_points([Head | Tail], Sum) ->
 sum_all_points([], Sum) ->
     Sum.
 
-start() ->
+main(_) ->
     % Read input.
     Input = read_input(),
 
