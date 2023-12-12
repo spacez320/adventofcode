@@ -5,7 +5,7 @@
 % symbols and produce a sum of them.
 
 -module(aoc3).
--export([start/0]).
+-export([main/1]).
 
 % Reads input from a file.
 read_input() ->
@@ -229,7 +229,7 @@ sum_all_product_duo_number_neighbors([Head | Tail], NumberMap, Sum) ->
 sum_all_product_duo_number_neighbors([], _, Sum) ->
     Sum.
 
-start() ->
+main(_) ->
     Input = read_input(),
 
     SymbolList = make_symbol_list(Input),

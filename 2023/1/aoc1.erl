@@ -6,7 +6,7 @@
 % number.
 
 -module(aoc1).
--export([start/0]).
+-export([main/0]).
 
 % Reads input from a file.
 read_input() ->
@@ -55,4 +55,4 @@ main([Head | Tail], Sum) ->
 main([], Sum) ->
     Sum.
 
-start() -> main(read_input(), 0).
+main(_) -> main(read_input(), 0).
