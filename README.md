@@ -1,7 +1,9 @@
 adventofcode
 ============
 
-Solutions for Advent of Code.
+Solutions for Advent of Code, mostly in Erlang.
+
+If you don't want to be spoiled, be careful about clicking around.
 
 Statistics
 ----------
