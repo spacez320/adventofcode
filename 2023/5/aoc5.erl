@@ -1,62 +1,120 @@
 %
 % Adven of Code 2023, Day 5
 %
-% - Given a series of maps that transform a starting category into an ending
-%   one, finds the lowest resultant category value from a set of starting
-%   category values.
+% Given a series of maps that transform a starting category value into an
+% ending one, finds the lowest resultant category value from a set of starting
+% category values.
 
 -module(aoc5).
 -include_lib("eunit/include/eunit.hrl").
 -export([main/1]).
 
 % Reads input from a file.
+%
+% Returns:
+%   list: Read input.
 read_input() ->
     {ok, Input} = file:read_file("5.txt"),
     string:tokens(binary_to_list(Input), "\n").
 
-% Determines a destination number given a source number and source and
-% destination ranges.
+% Given a map entry, produce a tuple that represents the source-to-destination
+% map and the destinations to map to.
 %
-% This is the init function.
-get_destination(Source, SourceDestinationMap) ->
+% E.g.
+%
+%   [1, 2, 3] -> {{2, 5}, {1, 4}}
+%
+make_map_and_destination_ranges(SourceDestinationMap) ->
+    DestinationRangeStart = lists:nth(1, SourceDestinationMap),
+    MapRangeStart = lists:nth(2, SourceDestinationMap),
+    RangeLength = lists:nth(3, SourceDestinationMap),
+    {
+        {MapRangeStart, MapRangeStart + RangeLength},
+        {DestinationRangeStart, DestinationRangeStart + RangeLength}
+    }.
+
+% Given a list of sources, produce a list of tuples which represent source
+% ranges.
+%
+% E.g.
+%
+%   [1, 2, 3, 4] -> [{1, 3}, {3, 7}]
+%
+make_source_ranges(Sources) ->
+    make_source_ranges(Sources, []).
+make_source_ranges([], SourceRanges) ->
+    SourceRanges;
+make_source_ranges(Sources, SourceRanges) ->
+    make_source_ranges(
+        lists:sublist(Sources, 3, length(Sources)),
+        lists:append(SourceRanges, [
+            {lists:nth(1, Sources), lists:nth(1, Sources) + lists:nth(2, Sources)}
+        ])
+    ).
+
+% Determines a destination number from a source given a single mapping.
+get_destination(Source, SourceDestinationMap) when is_integer(Source) ->
     get_destination(
         Source,
         lists:nth(2, SourceDestinationMap),
         lists:nth(1, SourceDestinationMap),
         lists:nth(3, SourceDestinationMap)
-    ).
-% This clause indicates the source number is outside the source range and
+    );
+% Redirect to the ranged functions when source is a range.
+get_destination(Source, SourceDestinationMap) when is_tuple(Source) ->
+    get_destination_from_range({Source, Source}, SourceDestinationMap).
+% This function indicates the source number is outside the source range and
 % should be returned as the destination number.
-get_destination(Source, SourceRangeStart, _, RangeLength) when
-    Source < SourceRangeStart; Source > (SourceRangeStart + RangeLength - 1)
+get_destination(Source, MapRangeStart, _, RangeLength) when
+    Source < MapRangeStart;
+    Source > (MapRangeStart + RangeLength - 1)
 ->
     Source;
 % This clause retrieves the destination mapped to the source.
-get_destination(Source, SourceRangeStart, DestinationRangeStart, _RangeLength) ->
-    % Subtract by one because lists are 1-indexed.
-    DestinationRangeStart + (Source - SourceRangeStart).
+get_destination(Source, MapRangeStart, DestinationRangeStart, _) ->
+    DestinationRangeStart + (Source - MapRangeStart).
 
-% Given a source, produces a destination based on a series of maps.
-get_destination_from_map(Source, SourceDestinationMap) ->
-    get_destination_from_map(Source, SourceDestinationMap, Source).
-% We found a mapping and can return it.
-get_destination_from_map(Source, _, Destination) when Source /= Destination ->
-    Destination;
-% We should continue searching for a destination.
-get_destination_from_map(Source, [Head | Tail], _) ->
-    get_destination_from_map(Source, Tail, get_destination(Source, Head));
-% We've considered all mappings.
-get_destination_from_map(_, [], Destination) ->
-    Destination.
+% Given a source range and a source-to-destination map, produce a destination value.
+get_destination_from_range(SourceRange, SourceDestinationMap) ->
+    {MapRange, DestinationRange} = make_map_and_destination_ranges(SourceDestinationMap),
+    get_destination_from_range(SourceRange, MapRange, DestinationRange).
+% The source range is entirely outside the mapping range. In this case there is
+% no destination to map to and we should return the first element of the source
+% range as the destination.
+get_destination_from_range(SourceRange, MapRange, _) when
+    element(1, SourceRange) > element(2, MapRange);
+    element(2, SourceRange) < element(1, MapRange)
+->
+    element(1, SourceRange);
+% The source range and mapping range intersect, but the source range starts
+% before the mapping range. Therefore, the first indexed destination is
+% returned.
+get_destination_from_range(SourceRange, MapRange, DestinationRange) when
+    element(1, SourceRange) < element(1, MapRange)
+->
+    element(1, DestinationRange);
+% Otherwise figure out the index where the source range starts within the map
+% range and return the corresponding destination.
+get_destination_from_range(SourceRange, MapRange, DestinationRange) ->
+    element(1, DestinationRange) + element(1, SourceRange) - element(1, MapRange).
 
-% Iterates through a series of mappings to find a resultant destination.
+% Determines a destination number from a source from multiple mappings.
 get_destination_from_maps(Source, [Head | Tail]) ->
-    get_destination_from_maps(get_destination_from_map(Source, Head), Tail);
+    get_destination_from_maps(get_destination_from_maps(Source, Head, Source), Tail);
 get_destination_from_maps(Destination, []) ->
     Destination.
+% We found a mapping and should stop early and return it.
+get_destination_from_maps(Source, _, Destination) when Source /= Destination ->
+    Destination;
+% We should continue searching for a destination.
+get_destination_from_maps(Source, [Head | Tail], _) ->
+    get_destination_from_maps(Source, Tail, get_destination(Source, Head));
+% We've considered all mappings and should just return the current destination.
+get_destination_from_maps(_, [], Destination) ->
+    Destination.
 
-% Iterates through a series of sources, maps them to their resultant
-% destination, and returns the minimum.
+% Iterates through a list of sources, maps them to their resultant destination,
+% and returns the minimum destination.
 find_min_destination(Sources, SourceDestinationMaps) ->
     lists:min(
         lists:map(
@@ -65,7 +123,57 @@ find_min_destination(Sources, SourceDestinationMaps) ->
         )
     ).
 
-% Reads the problem input. It should return a tuple with the following structure:
+% Iterates through a list of source ranges, maps them to their resultant
+% destination, and returns the minimum destination.
+find_min_destination_ranges(Sources, SourceDestinationMaps) ->
+    find_min_destination_ranges(Sources, SourceDestinationMaps, 0).
+% Considers the next source range.
+find_min_destination_ranges([Head | Tail], SourceDestinationMaps, CurrentMinDestination) ->
+    find_min_destination_ranges(
+        Tail,
+        SourceDestinationMaps,
+        case CurrentMinDestination of
+            0 ->
+                find_min_destination_ranges(
+                    element(1, Head), element(2, Head), SourceDestinationMaps, 0
+                );
+            _Else ->
+                min(
+                    find_min_destination_ranges(
+                        element(1, Head), element(2, Head), SourceDestinationMaps, 0
+                    ),
+                    CurrentMinDestination
+                )
+        end
+    );
+% All source changes have been considered.
+find_min_destination_ranges([], _, CurrentMinDestination) ->
+    CurrentMinDestination.
+% Iterate through the next source offered from the source range.
+find_min_destination_ranges(
+    Source, SourceRangeEnd, SourceDestinationMaps, CurrentMinDestination
+) when
+    Source /= SourceRangeEnd
+->
+    find_min_destination_ranges(
+        Source + 1,
+        SourceRangeEnd,
+        SourceDestinationMaps,
+        case CurrentMinDestination of
+            0 ->
+                get_destination_from_maps(Source, SourceDestinationMaps);
+            _Else ->
+                min(
+                    get_destination_from_maps(Source, SourceDestinationMaps),
+                    CurrentMinDestination
+                )
+        end
+    );
+% All sources in the source range have been considered.
+find_min_destination_ranges(_, _, _, CurrentMinDestination) ->
+    CurrentMinDestination.
+
+% Reads the problem input. It should return a list with the following structure:
 %
 % [
 %   [S1, S2, ...],
@@ -79,10 +187,9 @@ find_min_destination(Sources, SourceDestinationMaps) ->
 % - [S1, S2, ...] is the starting source set.
 % - [M1, M2, M3] is a mapping entry.
 %
-% This is the init clause.
 parse_input(Input) ->
     parse_input(Input, []).
-% This clause explicitly handles the starting source list.
+% Considers the next line of input to parse.
 parse_input([Head | Tail], Inputs) ->
     case re:run(Head, "\\d+", [global, {capture, all, list}]) of
         {match, Match} ->
@@ -98,7 +205,7 @@ parse_input([Head | Tail], Inputs) ->
             % This is the first mapping category header.
             parse_input(Tail, [], Inputs)
     end.
-% This clause considers the next mapping to add to the next series of mappings.
+% Considers the next mapping to add to the next list of mappings.
 parse_input([Head | Tail], NextInput, Inputs) ->
     case re:run(Head, "\\d+", [global, {capture, all, list}]) of
         {match, Match} ->
@@ -119,11 +226,35 @@ parse_input([Head | Tail], NextInput, Inputs) ->
 parse_input([], NextInput, Inputs) ->
     lists:append(Inputs, [NextInput]).
 
+% Entry-point.
 main(_) ->
     ParsedInput = parse_input(read_input()),
-    find_min_destination(
-        lists:nth(1, ParsedInput), lists:sublist(ParsedInput, 2, length(ParsedInput))
-    ).
+    io:format("Min destination: ~p~n", [
+        find_min_destination(
+            lists:nth(1, ParsedInput), lists:sublist(ParsedInput, 2, length(ParsedInput))
+        )
+    ]),
+
+    io:format("Min destination (with ranges): ~p~n", [
+        find_min_destination_ranges(
+            make_source_ranges(lists:nth(1, ParsedInput)),
+            lists:sublist(ParsedInput, 2, length(ParsedInput))
+        )
+    ]).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%% TESTS
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% It creates a tuple of mapping and destination ranges.
+make_map_and_destination_ranges_test() ->
+    {{1, 2}, {3, 4}} = make_map_and_destination_ranges([3, 1, 1]).
+
+% It creates a list of source range tuples.
+make_source_ranges_test() ->
+    [{1, 3}, {3, 7}] = make_source_ranges([1, 2, 3, 4]).
 
 % It returns the source value if outside the bounds.
 get_destination_gt_test() -> 2 = get_destination(2, 1, 1, 1).
@@ -132,23 +263,41 @@ get_destination_lt_test() -> 1 = get_destination(1, 2, 2, 2).
 get_destination_one_test() -> 3 = get_destination(1, 1, 3, 1).
 get_destination_two_test() -> 4 = get_destination(2, 1, 3, 2).
 
+% Sanity check test case.
+get_destination_from_range_a_test() -> 1 = get_destination_from_range({1, 1}, {1, 1}, {1, 1}).
+% It returns the first element of the source range when outside the bounds of the mapping.
+get_destination_from_range_b_test() ->
+    5 = get_destination_from_range({5, 8}, {1, 2}, {1, 1}),
+    5 = get_destination_from_range({5, 8}, {9, 10}, {1, 1}).
+% It returns the correct destination when the mapping range starts before the source range.
+get_destination_from_range_c_test() -> 2 = get_destination_from_range({5, 8}, {4, 7}, {1, 2}).
+
 % It finds a mapping that exists.
-get_destination_from_map_found_test() -> 10 = get_destination_from_map(5, [[1, 1, 1], [10, 5, 1]]).
-% It resturns a source number with no mapping.
-get_destination_from_map_not_found_test() ->
-    5 = get_destination_from_map(5, [[1, 1, 1], [10, 6, 1]]).
-
-% It navigates a series of mappings to a destination.
 get_destination_from_maps_found_test() ->
-    10 = get_destination_from_maps(1, [[[5, 1, 1]], [[10, 5, 1]]]).
-% It returns a source number if there is a break in mappings.
+    10 = get_destination_from_maps(5, [[[1, 1, 1], [10, 5, 1]]]).
+% It resturns a source number with no mapping.
 get_destination_from_maps_not_found_test() ->
-    5 = get_destination_from_maps(1, [[[5, 1, 1]], [[10, 6, 1]]]).
+    5 = get_destination_from_maps(5, [[[1, 1, 1], [10, 6, 1]]]).
 
-% It returns a minimum destination map from a set of sources.
+% It returns a minimum destination map from a set of number sources.
 find_min_destination_test() ->
     35 = find_min_destination(
         [79, 14, 55, 13],
+        [
+            [[50, 98, 2], [52, 50, 48]],
+            [[0, 15, 37], [37, 52, 2], [39, 0, 15]],
+            [[49, 53, 8], [0, 11, 42], [42, 0, 7], [57, 7, 4]],
+            [[88, 18, 7], [18, 25, 70]],
+            [[45, 77, 23], [81, 45, 19], [68, 64, 13]],
+            [[0, 69, 1], [1, 0, 69]],
+            [[60, 56, 37], [56, 93, 4]]
+        ]
+    ).
+
+% It returns a minimum destination map from a set of ranged sources.
+find_min_destination_ranges_test() ->
+    46 = find_min_destination_ranges(
+        [{79, 79 + 14}, {55, 55 + 13}],
         [
             [[50, 98, 2], [52, 50, 48]],
             [[0, 15, 37], [37, 52, 2], [39, 0, 15]],
