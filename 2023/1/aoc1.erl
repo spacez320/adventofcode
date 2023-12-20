@@ -6,7 +6,7 @@
 % number.
 
 -module(aoc1).
--export([main/0]).
+-export([main/1]).
 
 % Reads input from a file.
 read_input() ->
