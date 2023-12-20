@@ -13,7 +13,8 @@ CURRENT_YEAR="2023"
 # Executes an AOC solution. Assumes an Erlang script with an exported function
 # signature of `main/1`.
 _exec_erl() {
-  escript "${1}.erl" &>/dev/null
+  timeout 30 escript "${1}.erl" &>/dev/null
+  return $?
 }
 
 # Times the execution of a script.
@@ -22,12 +23,20 @@ _timer() {
   local start=
   # Ending time.
   local end=
+  # Return code of the timed function.
+  local ret=
 
   start=$(date +%s.%N)
   $1
+  ret=$?
   end=$(date +%s.%N)
 
-  echo "$end - $start" | bc -l
+  if [[ $ret == 124 ]]; then
+    # A timeout occurred.
+    echo "too long :("
+  else
+    echo "$end - $start" | bc -l
+  fi
 }
 
 main() {
@@ -52,7 +61,7 @@ main() {
 
     input_size=$(wc --bytes "${day}.txt" | awk '{print $1}')
     solution_size=$(wc --bytes "aoc${day}.erl" | awk '{print $1}')
-    solution_time=$(_timer "_exec_erl \"aoc${day}\"")
+    solution_time=$(_timer "_exec_erl aoc${day}")
 
     echo -en """
 | ${day_i} | ${input_size} | ${solution_size} | ${solution_time} |"""
