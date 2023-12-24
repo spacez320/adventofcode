@@ -1,5 +1,8 @@
 %
-% Adven of Code 2023, Day 6
+% Advent of Code 2023, Day 6
+%
+% Provided input about button-press/distance travelled games, finds the product
+% of the sum of total winning inputs.
 
 -module(aoc6).
 -include_lib("eunit/include/eunit.hrl").
@@ -54,7 +57,7 @@ exhaustive_binary_search(Pred, List) ->
     NextIndex = round(length(List) / 2),
 
     case Pred(lists:nth(NextIndex, List)) of
-        % We found a match, so consider the former segment. in search of non-matches
+        % We found a match, so consider the former segment in search of non-matches.
         true -> exhaustive_binary_search(Pred, lists:sublist(List, NextIndex));
         % We found a non-match, so consider the latter segment in search of matches.
         _ -> exhaustive_binary_search(Pred, lists:sublist(List, NextIndex, length(List)))
