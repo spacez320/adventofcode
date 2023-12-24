@@ -52,7 +52,6 @@ parse_hand(Hand) ->
     {
         element(1, Hand),
         ParsedHand,
-        % read_hand(ParsedHand),
         case lists:keysearch("J", 1, ParsedHand) of
             % No wildcards.
             false ->
